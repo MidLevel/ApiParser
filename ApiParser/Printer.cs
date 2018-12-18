@@ -76,10 +76,13 @@ namespace ApiParser
         {
             b.AppendLine("- title: MLAPI.dll");
             b.AppendLine("  api:");
+            b.AppendLine("  - home");
+
             for (int i = 0; i < types.Count; i++)
             {
                 b.AppendLine("  - " + Utils.GetRelativeName(types[i].Type));
             }
+
         }
 
         private static void PrintEnum(StringBuilder b, EnumTypeDoc type)

@@ -21,7 +21,13 @@ namespace ApiParser
             if (!Directory.Exists(outputFolder))
                 Directory.CreateDirectory(outputFolder);
             else
-                Directory.GetFiles(outputFolder).ToList().ForEach(x => File.Delete(Path.Combine(outputFolder, x)));
+            {
+                Directory.GetFiles(outputFolder).ToList().ForEach(x =>
+                {
+                    if (Path.GetFileNameWithoutExtension(x).ToLower() != "index")
+                        File.Delete(Path.Combine(outputFolder, x));
+                });
+            }
 
             Assembly assembly = Assembly.UnsafeLoadFrom(inputDll);
 
