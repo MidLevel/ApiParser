@@ -88,7 +88,7 @@ namespace ApiParser
         private static void PrintEnum(StringBuilder b, EnumTypeDoc type)
         {
             b.AppendLine("<div style=\"line-height: 1;\">");
-            b.AppendLine("\t<h2 markdown=\"1\">" + Utils.GetSafeTypeName(type.Type, false) + " ``enum``</h2>");
+            b.AppendLine("\t<h2 markdown=\"1\">" + Utils.GetSafeTypeName(type.Type, true) + " ``enum``</h2>");
             b.AppendLine("\t<p style=\"font-size: 20px;\"><b>Namespace:</b> " + type.Namespace + "</p>");
             b.AppendLine("\t<p style=\"font-size: 20px;\"><b>Assembly:</b> MLAPI.dll</p>");
             b.AppendLine("</div>");
@@ -131,7 +131,7 @@ namespace ApiParser
         private static void PrintStruct(StringBuilder b, StructDocType type, DocTree tree)
         {
             b.AppendLine("<div style=\"line-height: 1;\">");
-            b.AppendLine("\t<h2 markdown=\"1\">" + Utils.GetSafeTypeName(type.Type, false) + " ``struct``</h2>");
+            b.AppendLine("\t<h2 markdown=\"1\">" + Utils.GetSafeTypeName(type.Type, true) + " ``struct``</h2>");
             b.AppendLine("\t<p style=\"font-size: 20px;\"><b>Namespace:</b> " + type.Namespace + "</p>");
             b.AppendLine("\t<p style=\"font-size: 20px;\"><b>Assembly:</b> MLAPI.dll</p>");
             b.AppendLine("</div>");
