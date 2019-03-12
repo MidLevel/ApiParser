@@ -21,7 +21,7 @@ namespace ApiParser
 
                     StringBuilder b = new StringBuilder();
                     b.AppendLine("---");
-                    b.AppendLine("title: " + Utils.GetSafeTypeName(type.Type, false));
+                    b.AppendLine("title: " + Utils.GetSafeTypeName(type.Type, true));
                     b.AppendLine("permalink: " + Utils.GetRelativeApiUrl(type.Type, false));
                     b.AppendLine("---");
                     b.AppendLine();
@@ -38,7 +38,7 @@ namespace ApiParser
 
                     StringBuilder b = new StringBuilder();
                     b.AppendLine("---");
-                    b.AppendLine("title: " + Utils.GetSafeTypeName(type.Type, false));
+                    b.AppendLine("title: " + Utils.GetSafeTypeName(type.Type, true));
                     b.AppendLine("permalink: " + Utils.GetRelativeApiUrl(type.Type, false));
                     b.AppendLine("---");
                     b.AppendLine();
@@ -55,7 +55,7 @@ namespace ApiParser
 
                     StringBuilder b = new StringBuilder();
                     b.AppendLine("---");
-                    b.AppendLine("title: " + Utils.GetSafeTypeName(type.Type, false));
+                    b.AppendLine("title: " + Utils.GetSafeTypeName(type.Type, true));
                     b.AppendLine("permalink: " + Utils.GetRelativeApiUrl(type.Type, false));
                     b.AppendLine("---");
                     b.AppendLine();
@@ -111,7 +111,7 @@ namespace ApiParser
         private static void PrintClass(StringBuilder b, ClassTypeDoc type, DocTree tree)
         {
             b.AppendLine("<div style=\"line-height: 1;\">");
-            b.AppendLine("\t<h2 markdown=\"1\">" + Utils.GetSafeTypeName(type.Type, true) + " ``class``</h2>");
+            b.AppendLine("\t<h2 markdown=\"1\">" + Utils.GetSafeTypeName(type.Type, true) + " ``class``" + (type.Obsolete ? " <small><span class=\"label label-warning\" title=\"" + type.ObsoleteString + "\">Obsolete</span></small>" : "") + "</h2>");
             b.AppendLine("\t<p style=\"font-size: 20px;\"><b>Namespace:</b> " + type.Namespace + "</p>");
             b.AppendLine("\t<p style=\"font-size: 20px;\"><b>Assembly:</b> MLAPI.dll</p>");
             b.AppendLine("</div>");
@@ -121,17 +121,18 @@ namespace ApiParser
                 b.AppendLine("<p>" + type.Summary + "</p>");
                 b.AppendLine();
             }
-
+            
             PrintProperties(b, type.Properties, tree);
             PrintFields(b, type.Fields, tree);
             PrintConstructors(b, type.Constructors, tree);
             PrintMethods(b, type.Methods, tree);
+            
         }
 
         private static void PrintStruct(StringBuilder b, StructDocType type, DocTree tree)
         {
             b.AppendLine("<div style=\"line-height: 1;\">");
-            b.AppendLine("\t<h2 markdown=\"1\">" + Utils.GetSafeTypeName(type.Type, true) + " ``struct``</h2>");
+            b.AppendLine("\t<h2 markdown=\"1\">" + Utils.GetSafeTypeName(type.Type, true) + " ``struct``" + (type.Obsolete ? " <small><span class=\"label label-warning\" title=\"" + type.ObsoleteString + "\">Obsolete</span></small>" : "") + "</h2>");
             b.AppendLine("\t<p style=\"font-size: 20px;\"><b>Namespace:</b> " + type.Namespace + "</p>");
             b.AppendLine("\t<p style=\"font-size: 20px;\"><b>Assembly:</b> MLAPI.dll</p>");
             b.AppendLine("</div>");
@@ -188,7 +189,7 @@ namespace ApiParser
                 }
 
                 methodBuilder.AppendLine("\t<div style=\"line-height: 1;\">");
-                methodBuilder.AppendLine("\t\t<h4 markdown=\"1\"><b>" + methodString + "</b></h4>");
+                methodBuilder.AppendLine("\t\t<h4 markdown=\"1\"><b>" + methodString + "</b>" + (method.Obsolete ? " <small><span class=\"label label-warning\" title=\"" + method.ObsoleteString + "\">Obsolete</span></small>" : "") + "</h4>");
 
                 if (method.InheritedFrom != null)
                 {
@@ -284,7 +285,7 @@ namespace ApiParser
 
                 methodString += ");";
 
-                b.AppendLine("\t\t<h4 markdown=\"1\"><b>" + methodString + "</b></h4>");
+                b.AppendLine("\t\t<h4 markdown=\"1\"><b>" + methodString + "</b>" + (constructor.Obsolete ? " <small><span class=\"label label-warning\" title=\"" + constructor.ObsoleteString + "\">Obsolete</span></small>" : "") + "</h4>");
 
                 if (constructor.Summary != null)
                 {
@@ -341,7 +342,7 @@ namespace ApiParser
                 }
 
                 fieldBuilder.AppendLine("\t<div style=\"line-height: 1;\">");
-                fieldBuilder.AppendLine("\t\t<h4 markdown=\"1\"><b>public " + Utils.GetLinkedTypeString(field.Type, tree, true) + " " + field.Name + ";</b></h4>");
+                fieldBuilder.AppendLine("\t\t<h4 markdown=\"1\"><b>public " + Utils.GetLinkedTypeString(field.Type, tree, true) + " " + field.Name + ";</b>" + (field.Obsolete ? " <small><span class=\"label label-warning\" title=\"" + field.ObsoleteString + "\">Obsolete</span></small>" : "") + "</h4>");
 
                 if (field.InheritedFrom != null)
                 {
@@ -401,7 +402,7 @@ namespace ApiParser
                 }
 
                 propertyBuilder.AppendLine("\t<div style=\"line-height: 1;\">");
-                propertyBuilder.AppendLine("\t\t<h4 markdown=\"1\"><b>public " + Utils.GetLinkedTypeString(property.Type, tree, true) + " " + property.Name + " { " + (property.Getter ? "get; " : "") + (property.Setter ? "set; " : "") + "}</b></h4>");
+                propertyBuilder.AppendLine("\t\t<h4 markdown=\"1\"><b>public " + Utils.GetLinkedTypeString(property.Type, tree, true) + " " + property.Name + " { " + (property.Getter ? "get; " : "") + (property.Setter ? "set; " : "") + "}</b>" + (property.Obsolete ? " <small><span class=\"label label-warning\" title=\"" + property.ObsoleteString + "\">Obsolete</span></small>" : "") + "</h4>");
 
                 if (property.InheritedFrom != null)
                 {

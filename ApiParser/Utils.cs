@@ -76,12 +76,12 @@ namespace ApiParser
 
         public static string GetRelativeApiUrl(Type type, bool mlapiPrefix)
         {
-            return ("/" + (mlapiPrefix ? "MLAPI/" : "") + "api/" + PascalToSafeKebab(GetSafeTypeName(type, false)).Replace("<", "_").Replace(">", "_") + "/");
+            return ("/" + (mlapiPrefix ? "MLAPI/" : "") + "api/" + PascalToSafeKebab(GetSafeTypeName(type, false)).Replace("<", "%3C").Replace(">", "%3E") + "/");
         }
 
         public static string GetRelativeName(Type type)
         {
-            return PascalToSafeKebab(GetSafeTypeName(type, false)).Replace("<", "_").Replace(">", "_");
+            return PascalToSafeKebab(GetSafeTypeName(type, false)).Replace("<", "%3C").Replace(">", "%3E").Replace(" ", "");
         }
 
         public static string GetSafeTypeName(Type type, bool markdown)
@@ -115,7 +115,7 @@ namespace ApiParser
 
             if (type.IsGenericType)
             {
-                return type.Name.Trim('`', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0') + (markdown ? "&lt;" : "<") + string.Join(", ", type.GetTypeInfo().GenericTypeParameters.Select(x => GetSafeTypeName(x, markdown))) + string.Join(", ", type.GenericTypeArguments.Select(x => GetSafeTypeName(x, markdown))) + (markdown ? "&gt;" : ">");
+                return (type.Name.Trim('`', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0') + (markdown ? "&lt;" : "<") + string.Join(", ", type.GetTypeInfo().GenericTypeParameters.Select(x => GetSafeTypeName(x, markdown))) + string.Join(", ", type.GenericTypeArguments.Select(x => GetSafeTypeName(x, markdown))) + (markdown ? "&gt;" : ">")).Replace(" ", "");
             }
 
             return $"{type.Name}";

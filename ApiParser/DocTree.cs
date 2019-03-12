@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices.WindowsRuntime;
 
 namespace ApiParser
 {
@@ -73,6 +74,111 @@ namespace ApiParser
             docTypes.Add(enumType);
         }
 
+        private MethodDoc ParseMethod(Type type, MethodInfo method, XmlDocTree xmlDocTree)
+        {
+            MethodDoc methodDoc = new MethodDoc()
+            {
+                Name = method.Name,
+                ReturnType = method.ReturnType,
+                IsStatic = method.IsStatic,
+                IsAbstract = method.IsAbstract,
+                InheritedFrom = method.DeclaringType == type ? null : method.DeclaringType,
+                Obsolete = method.IsDefined(typeof(ObsoleteAttribute), true),
+                ObsoleteString = method.GetCustomAttribute<ObsoleteAttribute>(true)?.Message
+            };
+
+            DocMember member = xmlDocTree.GetDocumentation(method);
+
+            if (member != null)
+            {
+                methodDoc.Summary = member.Summary;
+                methodDoc.ReturnSummary = member.ReturnsSummary;
+            }
+
+            methodDoc.Parameters = ParseParameters(method, member);
+
+            return methodDoc;
+        }
+
+        private ConstructorDoc ParseConstructor(Type type, ConstructorInfo constructor, XmlDocTree xmlDocTree)
+        {
+            ConstructorDoc constructorDoc = new ConstructorDoc()
+            {
+                Type = type,
+                Obsolete = constructor.IsDefined(typeof(ObsoleteAttribute), true),
+                ObsoleteString = constructor.GetCustomAttribute<ObsoleteAttribute>(true)?.Message
+            };
+
+            DocMember member = xmlDocTree.GetDocumentation(constructor);
+            if (member != null) constructorDoc.Summary = member.Summary;
+
+            constructorDoc.Parameters = ParseParameters(constructor, member);
+
+            return constructorDoc;
+        }
+
+        private FieldDoc ParseField(Type type, FieldInfo field, XmlDocTree xmlDocTree)
+        {
+            FieldDoc fieldDoc = new FieldDoc()
+            {
+                Name = field.Name,
+                Type = field.FieldType,
+                InheritedFrom = field.DeclaringType == type ? null : field.DeclaringType,
+                IsStatic = field.IsStatic,
+                Obsolete = field.IsDefined(typeof(ObsoleteAttribute), true),
+                ObsoleteString = field.GetCustomAttribute<ObsoleteAttribute>(true)?.Message
+            };
+
+            DocMember member = xmlDocTree.GetDocumentation(field);
+            if (member != null) fieldDoc.Summary = member.Summary;
+
+            return fieldDoc;
+        }
+
+        private PropertyDoc ParseProperty(Type type, PropertyInfo property, XmlDocTree xmlDocTree)
+        {
+            PropertyDoc propertyDoc = new PropertyDoc()
+            {
+                Name = property.Name,
+                Type = property.PropertyType,
+                Getter = property.CanRead,
+                Setter = property.CanWrite,
+                InheritedFrom = property.DeclaringType == type ? null : property.DeclaringType,
+                Obsolete = property.IsDefined(typeof(ObsoleteAttribute), true),
+                ObsoleteString = property.GetCustomAttribute<ObsoleteAttribute>(true)?.Message
+            };
+
+            DocMember member = xmlDocTree.GetDocumentation(property);
+            if (member != null) propertyDoc.Summary = member.Summary;
+
+            return propertyDoc;
+        }
+        
+        private List<ParameterDoc> ParseParameters(MethodBase method, DocMember memberDocs)
+        {
+            List<ParameterDoc> parameters = new List<ParameterDoc>();
+            
+            foreach (ParameterInfo parameter in method.GetParameters())
+            {
+                ParameterDoc parameterDoc = new ParameterDoc()
+                {
+                    Name = parameter.Name,
+                    DefaultValue = parameter.HasDefaultValue ? parameter.DefaultValue : null,
+                    IsOptional = parameter.IsOptional,
+                    IsOut = parameter.IsOut,
+                    Type = parameter.ParameterType,
+                    SafeName = Utils.GetSafeTypeName(parameter.ParameterType, false)
+                };
+
+                if (memberDocs != null && memberDocs.Parameters.ContainsKey(parameterDoc.Name))
+                    parameterDoc.Summary = memberDocs.Parameters[parameterDoc.Name];
+
+                parameters.Add(parameterDoc);
+            }
+
+            return parameters;
+        }
+
         private void ParseClass(Type type, XmlDocTree xmlDocTree)
         {
             ClassTypeDoc classType = new ClassTypeDoc()
@@ -83,117 +189,33 @@ namespace ApiParser
                 IsGeneric = type.IsGenericType,
                 IsStatic = type.IsAbstract && type.IsSealed,
                 IsAbstract = type.IsAbstract,
-                IsSealed = type.IsSealed
+                IsSealed = type.IsSealed,
+                Obsolete = type.IsDefined(typeof(ObsoleteAttribute), true),
+                ObsoleteString = type.GetCustomAttribute<ObsoleteAttribute>(true)?.Message
             };
 
             foreach (MethodInfo method in type.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.Static).Where(x => !x.IsSpecialName))
             {
-                MethodDoc methodDoc = new MethodDoc()
-                {
-                    Name = method.Name,
-                    ReturnType = method.ReturnType,
-                    IsStatic = method.IsStatic,
-                    IsAbstract = method.IsAbstract,
-                    InheritedFrom = method.DeclaringType == type ? null : method.DeclaringType
-                };
-
-                DocMember member = xmlDocTree.GetDocumentation(method);
-
-                if (member != null)
-                {
-                    methodDoc.Summary = member.Summary;
-                    methodDoc.ReturnSummary = member.ReturnsSummary;
-                }
-
-
-                foreach (ParameterInfo parameter in method.GetParameters())
-                {
-                    ParameterDoc parameterDoc = new ParameterDoc()
-                    {
-                        Name = parameter.Name,
-                        DefaultValue = parameter.HasDefaultValue ? parameter.DefaultValue : null,
-                        IsOptional = parameter.IsOptional,
-                        IsOut = parameter.IsOut,
-                        Type = parameter.ParameterType,
-                        SafeName = Utils.GetSafeTypeName(parameter.ParameterType, false)
-                    };
-
-                    if (member != null && member.Parameters.ContainsKey(parameterDoc.Name))
-                        parameterDoc.Summary = member.Parameters[parameterDoc.Name];
-
-                    methodDoc.Parameters.Add(parameterDoc);
-                }
-
-
-                classType.Methods.Add(methodDoc);
+                classType.Methods.Add(ParseMethod(type, method, xmlDocTree));
             }
 
             foreach (FieldInfo field in type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.Static))
             {
-                FieldDoc fieldDoc = new FieldDoc()
-                {
-                    Name = field.Name,
-                    Type = field.FieldType,
-                    InheritedFrom = field.DeclaringType == type ? null : field.DeclaringType,
-                    IsStatic = field.IsStatic
-                };
-
-                DocMember member = xmlDocTree.GetDocumentation(field);
-                if (member != null) fieldDoc.Summary = member.Summary;
-
-                classType.Fields.Add(fieldDoc);
+                classType.Fields.Add(ParseField(type, field, xmlDocTree));
             }
 
             foreach (PropertyInfo property in type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.Static))
             {
-                PropertyDoc propertyDoc = new PropertyDoc()
-                {
-                    Name = property.Name,
-                    Type = property.PropertyType,
-                    Getter = property.CanRead,
-                    Setter = property.CanWrite,
-                    InheritedFrom = property.DeclaringType == type ? null : property.DeclaringType,
-                    IsStatic = false // TODO
-                };
-
-                DocMember member = xmlDocTree.GetDocumentation(property);
-                if (member != null) propertyDoc.Summary = member.Summary;
-
-                classType.Properties.Add(propertyDoc);
+                classType.Properties.Add(ParseProperty(type, property, xmlDocTree));
             }
 
             foreach (ConstructorInfo constructor in type.GetConstructors(BindingFlags.Instance | BindingFlags.Public | BindingFlags.Static))
             {
-                ConstructorDoc constructorDoc = new ConstructorDoc()
-                {
-                    Type = type
-                };
-
-                DocMember member = xmlDocTree.GetDocumentation(constructor);
-                if (member != null) constructorDoc.Summary = member.Summary;
-
-                foreach (ParameterInfo parameter in constructor.GetParameters())
-                {
-                    ParameterDoc parameterDoc = new ParameterDoc()
-                    {
-                        Name = parameter.Name,
-                        Type = parameter.ParameterType
-                    };
-
-                    if (member != null && member.Parameters.ContainsKey(parameterDoc.Name))
-                        parameterDoc.Summary = member.Parameters[parameterDoc.Name];
-
-                    constructorDoc.Parameters.Add(parameterDoc);
-                }
-
-                classType.Constructors.Add(constructorDoc);
+                classType.Constructors.Add(ParseConstructor(type, constructor, xmlDocTree));
             }
 
-
-            {
-                DocMember member = xmlDocTree.GetDocumentation(type);
-                if (member != null) classType.Summary = member.Summary;
-            }
+            DocMember member = xmlDocTree.GetDocumentation(type);
+            if (member != null) classType.Summary = member.Summary;
 
             docTypes.Add(classType);
         }
@@ -205,117 +227,33 @@ namespace ApiParser
                 Name = type.Name,
                 Type = type,
                 Namespace = type.Namespace,
-                IsGeneric = type.IsGenericType
+                IsGeneric = type.IsGenericType,
+                Obsolete = type.IsDefined(typeof(ObsoleteAttribute), true),
+                ObsoleteString = type.GetCustomAttribute<ObsoleteAttribute>(true)?.Message
             };
 
             foreach (MethodInfo method in type.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.Static).Where(x => !x.IsSpecialName))
             {
-                MethodDoc methodDoc = new MethodDoc()
-                {
-                    Name = method.Name,
-                    ReturnType = method.ReturnType,
-                    IsStatic = method.IsStatic,
-                    IsAbstract = method.IsAbstract,
-                    InheritedFrom = method.DeclaringType == type ? null : method.DeclaringType
-                };
-
-                DocMember member = xmlDocTree.GetDocumentation(method);
-
-                if (member != null)
-                {
-                    methodDoc.Summary = member.Summary;
-                    methodDoc.ReturnSummary = member.ReturnsSummary;
-                }
-
-
-                foreach (ParameterInfo parameter in method.GetParameters())
-                {
-                    ParameterDoc parameterDoc = new ParameterDoc()
-                    {
-                        Name = parameter.Name,
-                        DefaultValue = parameter.HasDefaultValue ? parameter.DefaultValue : null,
-                        IsOptional = parameter.IsOptional,
-                        IsOut = parameter.IsOut,
-                        Type = parameter.ParameterType,
-                        SafeName = Utils.GetSafeTypeName(parameter.ParameterType, false)
-                    };
-
-                    if (member != null && member.Parameters.ContainsKey(parameterDoc.Name))
-                        parameterDoc.Summary = member.Parameters[parameterDoc.Name];
-
-                    methodDoc.Parameters.Add(parameterDoc);
-                }
-
-
-                structDoc.Methods.Add(methodDoc);
+                structDoc.Methods.Add(ParseMethod(type, method, xmlDocTree));
             }
 
             foreach (FieldInfo field in type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.Static))
             {
-                FieldDoc fieldDoc = new FieldDoc()
-                {
-                    Name = field.Name,
-                    Type = field.FieldType,
-                    InheritedFrom = field.DeclaringType == type ? null : field.DeclaringType,
-                    IsStatic = field.IsStatic
-                };
-
-                DocMember member = xmlDocTree.GetDocumentation(field);
-                if (member != null) fieldDoc.Summary = member.Summary;
-
-                structDoc.Fields.Add(fieldDoc);
+                structDoc.Fields.Add(ParseField(type, field, xmlDocTree));
             }
 
             foreach (PropertyInfo property in type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.Static))
             {
-                PropertyDoc propertyDoc = new PropertyDoc()
-                {
-                    Name = property.Name,
-                    Type = property.PropertyType,
-                    Getter = property.CanRead,
-                    Setter = property.CanWrite,
-                    InheritedFrom = property.DeclaringType == type ? null : property.DeclaringType,
-                    IsStatic = false // TODO
-                };
-
-                DocMember member = xmlDocTree.GetDocumentation(property);
-                if (member != null) propertyDoc.Summary = member.Summary;
-
-                structDoc.Properties.Add(propertyDoc);
+                structDoc.Properties.Add(ParseProperty(type, property, xmlDocTree));
             }
 
             foreach (ConstructorInfo constructor in type.GetConstructors(BindingFlags.Instance | BindingFlags.Public | BindingFlags.Static))
             {
-                ConstructorDoc constructorDoc = new ConstructorDoc()
-                {
-                    Type = type
-                };
-
-                DocMember member = xmlDocTree.GetDocumentation(constructor);
-                if (member != null) constructorDoc.Summary = member.Summary;
-
-                foreach (ParameterInfo parameter in constructor.GetParameters())
-                {
-                    ParameterDoc parameterDoc = new ParameterDoc()
-                    {
-                        Name = parameter.Name,
-                        Type = parameter.ParameterType
-                    };
-
-                    if (member != null && member.Parameters.ContainsKey(parameterDoc.Name))
-                        parameterDoc.Summary = member.Parameters[parameterDoc.Name];
-
-                    constructorDoc.Parameters.Add(parameterDoc);
-                }
-
-                structDoc.Constructors.Add(constructorDoc);
+                structDoc.Constructors.Add(ParseConstructor(type, constructor, xmlDocTree));
             }
 
-
-            {
-                DocMember member = xmlDocTree.GetDocumentation(type);
-                if (member != null) structDoc.Summary = member.Summary;
-            }
+            DocMember member = xmlDocTree.GetDocumentation(type);
+            if (member != null) structDoc.Summary = member.Summary;
 
             docTypes.Add(structDoc);
         }

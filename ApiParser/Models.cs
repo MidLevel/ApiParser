@@ -40,6 +40,8 @@ namespace ApiParser
         public List<PropertyDoc> Properties = new List<PropertyDoc>();
         public List<FieldDoc> Fields = new List<FieldDoc>();
         public List<ConstructorDoc> Constructors = new List<ConstructorDoc>();
+        public bool Obsolete;
+        public string ObsoleteString;
     }
 
     public class StructDocType : DocType
@@ -49,6 +51,8 @@ namespace ApiParser
         public List<PropertyDoc> Properties = new List<PropertyDoc>();
         public List<FieldDoc> Fields = new List<FieldDoc>();
         public List<ConstructorDoc> Constructors = new List<ConstructorDoc>();
+        public bool Obsolete;
+        public string ObsoleteString;
     }
 
     public class ConstructorDoc
@@ -56,6 +60,8 @@ namespace ApiParser
         public string Summary;
         public Type Type;
         public List<ParameterDoc> Parameters = new List<ParameterDoc>();
+        public bool Obsolete;
+        public string ObsoleteString;
     }
 
     public class MethodDoc
@@ -68,6 +74,8 @@ namespace ApiParser
         public bool IsAbstract;
         public Type InheritedFrom;
         public List<ParameterDoc> Parameters = new List<ParameterDoc>();
+        public bool Obsolete;
+        public string ObsoleteString;
     }
 
     public class ParameterDoc
@@ -88,6 +96,8 @@ namespace ApiParser
         public string Summary;
         public bool IsStatic;
         public Type InheritedFrom;
+        public bool Obsolete;
+        public string ObsoleteString;
     }
 
     public class PropertyDoc
@@ -95,10 +105,10 @@ namespace ApiParser
         public Type Type;
         public string Name;
         public string Summary;
-        public bool IsStatic;
         public Type InheritedFrom;
         public bool Getter;
         public bool Setter;
         public bool Obsolete;
+        public string ObsoleteString;
     }
 }
