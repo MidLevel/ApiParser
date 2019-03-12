@@ -22,6 +22,7 @@ namespace ApiParser
                     StringBuilder b = new StringBuilder();
                     b.AppendLine("---");
                     b.AppendLine("title: " + Utils.GetSafeTypeName(type.Type, true));
+                    b.AppendLine("name: " + Utils.GetSafeTypeName(type.Type, false));
                     b.AppendLine("permalink: " + Utils.GetRelativeApiUrl(type.Type, false));
                     b.AppendLine("---");
                     b.AppendLine();
@@ -39,6 +40,7 @@ namespace ApiParser
                     StringBuilder b = new StringBuilder();
                     b.AppendLine("---");
                     b.AppendLine("title: " + Utils.GetSafeTypeName(type.Type, true));
+                    b.AppendLine("name: " + Utils.GetSafeTypeName(type.Type, false));
                     b.AppendLine("permalink: " + Utils.GetRelativeApiUrl(type.Type, false));
                     b.AppendLine("---");
                     b.AppendLine();
@@ -56,6 +58,7 @@ namespace ApiParser
                     StringBuilder b = new StringBuilder();
                     b.AppendLine("---");
                     b.AppendLine("title: " + Utils.GetSafeTypeName(type.Type, true));
+                    b.AppendLine("name: " + Utils.GetSafeTypeName(type.Type, false));
                     b.AppendLine("permalink: " + Utils.GetRelativeApiUrl(type.Type, false));
                     b.AppendLine("---");
                     b.AppendLine();
