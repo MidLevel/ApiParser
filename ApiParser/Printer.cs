@@ -74,15 +74,32 @@ namespace ApiParser
 
         private static void WriteYaml(StringBuilder b, List<DocType> types)
         {
-            b.AppendLine("- title: MLAPI.dll");
-            b.AppendLine("  api:");
-            b.AppendLine("  - home");
+            Dictionary<string, List<DocType>> namespaceSortedList = new Dictionary<string, List<DocType>>();
 
             for (int i = 0; i < types.Count; i++)
             {
-                b.AppendLine("  - " + Utils.GetRelativeName(types[i].Type));
+                if (!namespaceSortedList.ContainsKey(types[i].Namespace))
+                {
+                    namespaceSortedList.Add(types[i].Namespace, new List<DocType>());
+                }
+                
+                namespaceSortedList[types[i].Namespace].Add(types[i]);
             }
 
+            b.AppendLine("- title: Home");
+            b.AppendLine("  api:");
+            b.AppendLine("  - home");
+            
+            foreach (KeyValuePair<string, List<DocType>> pair in namespaceSortedList)
+            {
+                b.AppendLine("- title: " + pair.Key);
+                b.AppendLine("  api:");
+
+                for (int i = 0; i < pair.Value.Count; i++)
+                {
+                    b.AppendLine("  - " + Utils.GetRelativeName(pair.Value[i].Type));
+                }
+            }
         }
 
         private static void PrintEnum(StringBuilder b, EnumTypeDoc type)

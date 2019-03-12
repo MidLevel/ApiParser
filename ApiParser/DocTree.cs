@@ -17,7 +17,7 @@ namespace ApiParser
             DocTree docTree = new DocTree();
 
             foreach (Type type in assembly.ExportedTypes)
-            {
+            {     
                 if (type.IsEnum)
                 {
                     docTree.ParseEnum(type, xmlDocTree);
