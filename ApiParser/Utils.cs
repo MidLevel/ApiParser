@@ -64,19 +64,19 @@ namespace ApiParser
             return safeKebab;
         }
 
-        public static string GetLinkedTypeString(Type type, DocTree tree, bool mlapiPrefix)
+        public static string GetLinkedTypeString(Type type, DocTree tree)
         {
             if (tree.docTypes.Select(x => x.Type).Contains(type))
             {
-                return "[``" + GetSafeTypeName(type, false) + "``](" + GetRelativeApiUrl(type, mlapiPrefix) + ")";
+                return "[``" + GetSafeTypeName(type, false) + "``](" + GetRelativeApiUrl(type) + ")";
             }
 
             return "``" + GetSafeTypeName(type, false) + "``";
         }
 
-        public static string GetRelativeApiUrl(Type type, bool mlapiPrefix)
+        public static string GetRelativeApiUrl(Type type)
         {
-            return ("/" + (mlapiPrefix ? "MLAPI/" : "") + "api/" + PascalToSafeKebab(GetSafeTypeName(type, false)).Replace("<", "%3C").Replace(">", "%3E") + "/");
+            return ("/" + "api/" + PascalToSafeKebab(GetSafeTypeName(type, false)).Replace("<", "%3C").Replace(">", "%3E") + "/");
         }
 
         public static string GetRelativeName(Type type)

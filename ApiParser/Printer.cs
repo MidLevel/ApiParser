@@ -23,7 +23,7 @@ namespace ApiParser
                     b.AppendLine("---");
                     b.AppendLine("title: " + Utils.GetSafeTypeName(type.Type, true));
                     b.AppendLine("name: " + Utils.GetSafeTypeName(type.Type, false));
-                    b.AppendLine("permalink: " + Utils.GetRelativeApiUrl(type.Type, false));
+                    b.AppendLine("permalink: " + Utils.GetRelativeApiUrl(type.Type));
                     b.AppendLine("---");
                     b.AppendLine();
 
@@ -41,7 +41,7 @@ namespace ApiParser
                     b.AppendLine("---");
                     b.AppendLine("title: " + Utils.GetSafeTypeName(type.Type, true));
                     b.AppendLine("name: " + Utils.GetSafeTypeName(type.Type, false));
-                    b.AppendLine("permalink: " + Utils.GetRelativeApiUrl(type.Type, false));
+                    b.AppendLine("permalink: " + Utils.GetRelativeApiUrl(type.Type));
                     b.AppendLine("---");
                     b.AppendLine();
 
@@ -59,7 +59,7 @@ namespace ApiParser
                     b.AppendLine("---");
                     b.AppendLine("title: " + Utils.GetSafeTypeName(type.Type, true));
                     b.AppendLine("name: " + Utils.GetSafeTypeName(type.Type, false));
-                    b.AppendLine("permalink: " + Utils.GetRelativeApiUrl(type.Type, false));
+                    b.AppendLine("permalink: " + Utils.GetRelativeApiUrl(type.Type));
                     b.AppendLine("---");
                     b.AppendLine();
 
@@ -180,11 +180,11 @@ namespace ApiParser
 
             foreach (MethodDoc method in methods)
             {
-                string methodString = "public " + (method.IsStatic ? "static " : "") + Utils.GetLinkedTypeString(method.ReturnType, tree, true) + " " + method.Name + "(";
+                string methodString = "public " + (method.IsStatic ? "static " : "") + Utils.GetLinkedTypeString(method.ReturnType, tree) + " " + method.Name + "(";
 
                 for (int j = 0; j < method.Parameters.Count; j++)
                 {
-                    methodString += Utils.GetLinkedTypeString(method.Parameters[j].Type, tree, true) + " " + method.Parameters[j].Name;
+                    methodString += Utils.GetLinkedTypeString(method.Parameters[j].Type, tree) + " " + method.Parameters[j].Name;
                     if (j != method.Parameters.Count - 1) methodString += ", ";
                 }
 
@@ -213,7 +213,7 @@ namespace ApiParser
 
                 if (method.InheritedFrom != null)
                 {
-                    methodBuilder.AppendLine("\t\t<h5 markdown=\"1\">Inherited from: " + Utils.GetLinkedTypeString(method.InheritedFrom, tree, true) + "</h5>");
+                    methodBuilder.AppendLine("\t\t<h5 markdown=\"1\">Inherited from: " + Utils.GetLinkedTypeString(method.InheritedFrom, tree) + "</h5>");
                 }
 
 
@@ -229,7 +229,7 @@ namespace ApiParser
                     for (int j = 0; j < method.Parameters.Count; j++)
                     {
                         methodBuilder.AppendLine("\t\t<div>");
-                        methodBuilder.AppendLine("\t\t\t<p style=\"font-size: 20px; color: #444;\" markdown=\"1\">" + Utils.GetLinkedTypeString(method.Parameters[j].Type, tree, true) + " " + method.Parameters[j].Name + "</p>");
+                        methodBuilder.AppendLine("\t\t\t<p style=\"font-size: 20px; color: #444;\" markdown=\"1\">" + Utils.GetLinkedTypeString(method.Parameters[j].Type, tree) + " " + method.Parameters[j].Name + "</p>");
 
                         if (method.Parameters[j].Summary != null)
                         {
@@ -242,7 +242,7 @@ namespace ApiParser
 
                 if (method.ReturnType != typeof(void) && method.ReturnSummary != null)
                 {
-                    methodBuilder.AppendLine("\t\t<h5 markdown=\"1\"><b>Returns " + Utils.GetLinkedTypeString(method.ReturnType, tree, true) + "</b></h5>");
+                    methodBuilder.AppendLine("\t\t<h5 markdown=\"1\"><b>Returns " + Utils.GetLinkedTypeString(method.ReturnType, tree) + "</b></h5>");
 
                     methodBuilder.AppendLine("\t\t<div>");
                     methodBuilder.AppendLine("\t\t\t<p>" + method.ReturnSummary + "</p>");
@@ -295,11 +295,11 @@ namespace ApiParser
             foreach (ConstructorDoc constructor in constructors)
             {
                 b.AppendLine("\t<div style=\"line-height: 1; \">");
-                string methodString = "public " + Utils.GetLinkedTypeString(constructor.Type, tree, true) + "(";
+                string methodString = "public " + Utils.GetLinkedTypeString(constructor.Type, tree) + "(";
 
                 for (int j = 0; j < constructor.Parameters.Count; j++)
                 {
-                    methodString += Utils.GetLinkedTypeString(constructor.Parameters[j].Type, tree, true) + " " + constructor.Parameters[j].Name;
+                    methodString += Utils.GetLinkedTypeString(constructor.Parameters[j].Type, tree) + " " + constructor.Parameters[j].Name;
                     if (j != constructor.Parameters.Count - 1) methodString += ", ";
                 }
 
@@ -321,7 +321,7 @@ namespace ApiParser
                     for (int j = 0; j < constructor.Parameters.Count; j++)
                     {
                         b.AppendLine("\t\t<div>");
-                        b.AppendLine("\t\t\t<p style=\"font-size: 20px; color: #444;\" markdown=\"1\">" + Utils.GetLinkedTypeString(constructor.Parameters[j].Type, tree, true) + " " + constructor.Parameters[j].Name + "</p>");
+                        b.AppendLine("\t\t\t<p style=\"font-size: 20px; color: #444;\" markdown=\"1\">" + Utils.GetLinkedTypeString(constructor.Parameters[j].Type, tree) + " " + constructor.Parameters[j].Name + "</p>");
 
                         if (constructor.Parameters[j].Summary != null)
                         {
@@ -362,11 +362,11 @@ namespace ApiParser
                 }
 
                 fieldBuilder.AppendLine("\t<div style=\"line-height: 1;\">");
-                fieldBuilder.AppendLine("\t\t<h4 markdown=\"1\"><b>public " + Utils.GetLinkedTypeString(field.Type, tree, true) + " " + field.Name + ";</b>" + (field.Obsolete ? " <small><span class=\"label label-warning\" title=\"" + field.ObsoleteString + "\">Obsolete</span></small>" : "") + "</h4>");
+                fieldBuilder.AppendLine("\t\t<h4 markdown=\"1\"><b>public " + Utils.GetLinkedTypeString(field.Type, tree) + " " + field.Name + ";</b>" + (field.Obsolete ? " <small><span class=\"label label-warning\" title=\"" + field.ObsoleteString + "\">Obsolete</span></small>" : "") + "</h4>");
 
                 if (field.InheritedFrom != null)
                 {
-                    fieldBuilder.AppendLine("\t\t<h5 markdown=\"1\">Inherited from: " + Utils.GetLinkedTypeString(field.InheritedFrom, tree, true) + "</h5>");
+                    fieldBuilder.AppendLine("\t\t<h5 markdown=\"1\">Inherited from: " + Utils.GetLinkedTypeString(field.InheritedFrom, tree) + "</h5>");
                 }
 
                 if (field.Summary != null)
@@ -422,11 +422,11 @@ namespace ApiParser
                 }
 
                 propertyBuilder.AppendLine("\t<div style=\"line-height: 1;\">");
-                propertyBuilder.AppendLine("\t\t<h4 markdown=\"1\"><b>public " + Utils.GetLinkedTypeString(property.Type, tree, true) + " " + property.Name + " { " + (property.Getter ? "get; " : "") + (property.Setter ? "set; " : "") + "}</b>" + (property.Obsolete ? " <small><span class=\"label label-warning\" title=\"" + property.ObsoleteString + "\">Obsolete</span></small>" : "") + "</h4>");
+                propertyBuilder.AppendLine("\t\t<h4 markdown=\"1\"><b>public " + Utils.GetLinkedTypeString(property.Type, tree) + " " + property.Name + " { " + (property.Getter ? "get; " : "") + (property.Setter ? "set; " : "") + "}</b>" + (property.Obsolete ? " <small><span class=\"label label-warning\" title=\"" + property.ObsoleteString + "\">Obsolete</span></small>" : "") + "</h4>");
 
                 if (property.InheritedFrom != null)
                 {
-                    propertyBuilder.AppendLine("\t\t<h5 markdown=\"1\">Inherited from: " + Utils.GetLinkedTypeString(property.InheritedFrom, tree, true) + "</h5>");
+                    propertyBuilder.AppendLine("\t\t<h5 markdown=\"1\">Inherited from: " + Utils.GetLinkedTypeString(property.InheritedFrom, tree) + "</h5>");
                 }
 
                 if (property.Summary != null)
